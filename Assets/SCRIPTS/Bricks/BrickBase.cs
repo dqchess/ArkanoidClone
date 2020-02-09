@@ -32,6 +32,7 @@ public abstract class BrickBase : MonoBehaviour, IGolpeable
         _brickCollider = _transform.GetComponent<BoxCollider2D>();
     }
 
+   
     // Update is called once per frame
     void Update()
     {
@@ -72,7 +73,10 @@ public abstract class BrickBase : MonoBehaviour, IGolpeable
 
                 _hits = 2;
 
-                CanBeDestroyed = Type == BrickType.Brown ? true : false;
+                if ((int)Type != (int)BrickType.Brown)
+                    CanBeDestroyed = true;
+                else
+                    CanBeDestroyed = false;
 
                 _socket.CurrentBrickType = (int)Type;
 
@@ -82,7 +86,10 @@ public abstract class BrickBase : MonoBehaviour, IGolpeable
 
                 _hits = 3;
 
-                CanBeDestroyed = Type == BrickType.Brown ? true : false;
+                if ((int)Type != (int)BrickType.Brown)
+                    CanBeDestroyed = true;
+                else
+                    CanBeDestroyed = false;
 
                 _socket.CurrentBrickType = (int)Type;
 
@@ -92,7 +99,10 @@ public abstract class BrickBase : MonoBehaviour, IGolpeable
                  
                 _hits = -1;
 
-                CanBeDestroyed = false;
+                if ((int)Type != (int)BrickType.Brown)
+                    CanBeDestroyed = true;
+                else
+                    CanBeDestroyed = false;
 
                 _socket.CurrentBrickType = (int)Type;
                 
@@ -115,7 +125,7 @@ public abstract class BrickBase : MonoBehaviour, IGolpeable
 
     public void DestroyBrick()
     {
-       
+        Destroy(_transform.gameObject);
     }
 
 

@@ -5,7 +5,7 @@ using UnityEngine;
 public class BrickBreaker : MonoBehaviour
 {
     private Transform _transform;
-    private float Speed = 2.0f;
+    private float Speed = 3.0f;
     private float _movementDamping = 100.0f;
     private CircleCollider2D _collider = null;
     private int _verticalDir = 0;
@@ -29,7 +29,7 @@ public class BrickBreaker : MonoBehaviour
         _collider = _transform.GetComponent<CircleCollider2D>();
         _verticalDir = 1;
         _horizontalDir = 0;
-        Direction = new Vector3(-1, 1, 0).normalized;
+        Direction = new Vector3(0.6f, 1f, 0).normalized;
     }
 
     // Update is called once per frame
@@ -55,8 +55,8 @@ public class BrickBreaker : MonoBehaviour
         if (_currentDirection != Vector3.zero)
             _lastCatchedDir = _currentDirection;
 
-        _transform.Translate(Direction * Speed * Time.deltaTime);
-        //_transform.position += Direction * Time.deltaTime * Speed;
+       // _transform.Translate(Direction * Speed * Time.deltaTime);
+        _transform.position += Direction * Time.deltaTime * Speed;
 
        // _transform.position += _currentDirenction;
         //_transform.position += dirVector;
@@ -74,11 +74,10 @@ public class BrickBreaker : MonoBehaviour
 
 
 
-        //float reflectionAngle = GetReflectionAngle();
+       //Just For Fun:: Spin BrickBreaker 
+        Vector3 rotationvector = new Vector3(0, 0, 360);
 
-        //Vector3 rotationVector = new Vector3(0, 0, reflectionAngle);
-
-        //transform.Rotate(rotationVector);
+        transform.Rotate(rotationvector);
 
         switch (other.gameObject.tag)
         {
@@ -90,15 +89,15 @@ public class BrickBreaker : MonoBehaviour
                     target.GetDamage(_damage);
 
                 _verticalDir = -1;
-                Direction.y = -Direction.y;
+                //Direction.y = -Direction.y;
                
                 break;
             case ("Racket"):          
-                _verticalDir = 1;
-                Direction.y = -Direction.y;
+                
+               
                 break;
             case ("SideBound"):
-                Direction.x = -Direction.x;
+               
                 break;
             case ("LowerBound"):
                 _transform.gameObject.SetActive(false);
@@ -108,18 +107,20 @@ public class BrickBreaker : MonoBehaviour
         
 
         Debug.Log($"NEXT DIR :: {_lastCatchedDir.x} / {_lastCatchedDir.y} _verticalDir --> {_verticalDir}");
-        //Direction = _lastCatchedDir;
+        //_lastCatchedDir.y = _lastCatchedDir.y * _verticalDir;
+
+        Direction = _lastCatchedDir;
     }
 
-    private float GetReflectionAngle()
+    private float GetReflectionAngle(Vector2 direction)
     {
-        RaycastHit2D hit = Physics2D.Raycast(_transform.position, _transform.up, 2.0f);
+            RaycastHit2D hit = Physics2D.Raycast(_transform.position, Direction, 1.0f, 9);
 
         if (hit.collider != null)
         { 
-            var angle = Vector2.Angle(_transform.up, hit.normal);
+             float angle = Vector2.Angle(direction, hit.normal);
 
-            return angle;
+             return 90 - angle;            
         }
 
         return 0.0f;
@@ -144,26 +145,47 @@ public class BrickBreaker : MonoBehaviour
 
             //Vector2 localHit = _transform.InverseTransformVector(vector);
 
-            Vector2 reflect = Vector2.zero;
+            float angle = GetReflectionAngle(localHitVector);
 
-            switch(hit.transform.tag)
+           
+
+            switch (hit.transform.tag)
             {
                 
                 case ("SideBound"):
                     //reflect = hit.point + hit.normal + (new Vector2(0, localHitVector.y > 0 ? localHitVector.y : 0.1f * _verticalDir) * 2); 
-                    reflect = localHitVector;
-                    reflect.x = -reflect.x;                                        
-                    return reflect.normalized;
-                case("brick"):
-               
-                    //localHitVector.y = localHitVector.y * _verticalDir;
+                    
+                    localHitVector.x = -localHitVector.x;  
+                    
                     return localHitVector.normalized;
+
+                case("brick"):
+                    
+                    if (Mathf.Abs(angle) <= 30.0f)
+                        return -localHitVector;
+                    
+                    localHitVector.y = Mathf.Sign(hit.normal.y) > 0 ? -localHitVector.y : localHitVector.y;
+                    
+                    localHitVector.y = localHitVector.y * -_verticalDir;
+                    
+                    return localHitVector.normalized;
+                
                 case ("Racket"):
 
-                    localHitVector.x = -localHitVector.x;
+                        if (Mathf.Abs(angle) <= 40.0f)
+                        return -localHitVector;
+
+                    localHitVector.y = -localHitVector.y * -_verticalDir;
+
                     return localHitVector.normalized;
-                //reflect = hit.point + hit.normal + (new Vector2(localHitVector.x, 0) * 2);
-                
+
+                case ("Bound"):
+                    
+                    localHitVector.y = -localHitVector.y * -_verticalDir;
+                    
+                    return localHitVector.normalized;
+                    //reflect = hit.point + hit.normal + (new Vector2(localHitVector.x, 0) * 2);
+
             }
            
 

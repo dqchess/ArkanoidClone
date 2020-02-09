@@ -16,17 +16,19 @@ public class BlockSocket : MonoBehaviour
     public BrickBase Brick { get => _socketBrick; set => _socketBrick = value; }
     public int CurrentBrickType { get => _currentBrickType; set => _currentBrickType = value; }
 
+    private void Awake()
+    {
+        
+    }
     void Start()
     {
-        if (_brickGO == null)
+       if (_brickGO == null)
         {
             _brickGO = Instantiate(BlockManager.Instance.YellowBrick, this.transform) as GameObject;
 
             _socketBrick = _brickGO.GetComponent<BrickBase>();
 
-           // _socketBrick.gameObject.SetActive(false);
         }
-            
     }
 
     // Update is called once per frame
@@ -67,6 +69,19 @@ public class BlockSocket : MonoBehaviour
             default:
                 _brickGO = Instantiate(BlockManager.Instance.YellowBrick, this.transform) as GameObject;
                 break;
+        }
+    }
+
+    public void Initialize(int brickType)
+    {
+        if (_brickGO != null)
+        {
+            Destroy(_brickGO.transform.gameObject);
+
+            SwitchType(brickType);
+
+            _socketBrick = _brickGO.GetComponent<BrickBase>();
+
         }
     }
 
