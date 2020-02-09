@@ -58,11 +58,6 @@ public class BlockManager : MonoBehaviour
         
     }
 
-    private void TestFill()
-    {
-        
-    }
-
     private void FillSockets(List<BlockSocket> sockets)
     {
 
