@@ -8,23 +8,28 @@ public class BrickBreaker : MonoBehaviour
     private float Speed = 2.0f;
     private float _movementDamping = 100.0f;
     private CircleCollider2D _collider = null;
-    private int _direction = 0;
+    private int _verticalDir = 0;
+    private int _horizontalDir = 0;
     private float _acceleration = 0.0f;
     private int _damage = 1;
 
-    public Vector3 direction = Vector3.zero;
+    //public delegate void OnChangeDirection();
+    //public event OnChangeDirection _changeDirection;
 
-    public GameObject hitten;
+    public Vector3 Direction = Vector3.zero;
+
+    public GameObject Hitten;
     [SerializeField]
-    Vector3 _currentDirenction = Vector3.zero;
+    Vector3 _currentDirection = Vector3.zero;
     [SerializeField]
     Vector2 _lastCatchedDir = Vector2.zero;
     void Start()
     {
         _transform = transform;
         _collider = _transform.GetComponent<CircleCollider2D>();
-        _direction = 1;
-        direction = new Vector3(-1f, 1, 0).normalized;
+        _verticalDir = 1;
+        _horizontalDir = 0;
+        Direction = new Vector3(-1, 1, 0).normalized;
     }
 
     // Update is called once per frame
@@ -45,19 +50,19 @@ public class BrickBreaker : MonoBehaviour
 
 
         // direccion LOCAL
-        _currentDirenction = GetReflectingVector();
+        _currentDirection = GetReflectingVector();
 
-        if (_currentDirenction != Vector3.zero)
-            _lastCatchedDir = _currentDirenction;
-        
+        if (_currentDirection != Vector3.zero)
+            _lastCatchedDir = _currentDirection;
 
-        _transform.position += direction * Time.deltaTime * Speed;
+        _transform.Translate(Direction * Speed * Time.deltaTime);
+        //_transform.position += Direction * Time.deltaTime * Speed;
 
        // _transform.position += _currentDirenction;
         //_transform.position += dirVector;
     }
 
-    void OnTriggerStay2D(Collider2D other)
+    void OnTriggerEnter2D(Collider2D other)
     {
         Debug.Log("On Trigger Enter");
 
@@ -67,15 +72,15 @@ public class BrickBreaker : MonoBehaviour
         //else
         //    direction = new Vector3(-1, 1 * _direction, 0).normalized;
 
-        direction = _lastCatchedDir;
 
-        float reflectionAngle = GetReflectionAngle();
 
-        Vector3 rotationVector = new Vector3(0, 0, reflectionAngle);
+        //float reflectionAngle = GetReflectionAngle();
 
-        transform.Rotate(rotationVector);
+        //Vector3 rotationVector = new Vector3(0, 0, reflectionAngle);
 
-        switch(other.gameObject.tag)
+        //transform.Rotate(rotationVector);
+
+        switch (other.gameObject.tag)
         {
             case ("brick"):
 
@@ -83,21 +88,27 @@ public class BrickBreaker : MonoBehaviour
 
                 if (target != null && target.CanBeDestroyed)
                     target.GetDamage(_damage);
-               
-                _direction = - 1;
-                _acceleration = 0;
-                break;
-            case ("Racket"):
 
-                _direction = 1;
-                _acceleration = 0;
+                _verticalDir = -1;
+                Direction.y = -Direction.y;
+               
                 break;
-            case("Bound"):
-                
+            case ("Racket"):          
+                _verticalDir = 1;
+                Direction.y = -Direction.y;
+                break;
+            case ("SideBound"):
+                Direction.x = -Direction.x;
                 break;
             case ("LowerBound"):
+                _transform.gameObject.SetActive(false);
+                Direction = Vector3.zero;
                 break;
         }
+        
+
+        Debug.Log($"NEXT DIR :: {_lastCatchedDir.x} / {_lastCatchedDir.y} _verticalDir --> {_verticalDir}");
+        //Direction = _lastCatchedDir;
     }
 
     private float GetReflectionAngle()
@@ -117,15 +128,13 @@ public class BrickBreaker : MonoBehaviour
     private Vector3 GetReflectingVector()
     {
        
-        RaycastHit2D hit = Physics2D.Raycast(_transform.position, direction, 2.0f, 9);
-
-        if(hit.transform != null)
-            Debug.Log($"HITTEN -- > {hit.transform.gameObject.name}");
+        RaycastHit2D hit = Physics2D.Raycast(_transform.position, Direction, 2.0f, 9);                  
 
         if(hit.collider != null && hit.collider != _collider)
         {
+            Debug.Log($"HITTEN -- > {hit.transform.gameObject.name}");
 
-            hitten = hit.transform.gameObject;
+            Hitten = hit.transform.gameObject;
 
             Vector2 vector = new Vector2(_transform.position.x, _transform.position.y);
 
@@ -135,15 +144,38 @@ public class BrickBreaker : MonoBehaviour
 
             //Vector2 localHit = _transform.InverseTransformVector(vector);
 
-            Vector2 reflect = hit.point + hit.normal + new Vector2(hitVector.x * 2, 0);
+            Vector2 reflect = Vector2.zero;
+
+            switch(hit.transform.tag)
+            {
+                
+                case ("SideBound"):
+                    //reflect = hit.point + hit.normal + (new Vector2(0, localHitVector.y > 0 ? localHitVector.y : 0.1f * _verticalDir) * 2); 
+                    reflect = localHitVector;
+                    reflect.x = -reflect.x;                                        
+                    return reflect.normalized;
+                case("brick"):
+               
+                    //localHitVector.y = localHitVector.y * _verticalDir;
+                    return localHitVector.normalized;
+                case ("Racket"):
+
+                    localHitVector.x = -localHitVector.x;
+                    return localHitVector.normalized;
+                //reflect = hit.point + hit.normal + (new Vector2(localHitVector.x, 0) * 2);
+                
+            }
+           
 
 
-            Vector2 localReflect = hit.transform.InverseTransformVector(reflect - hit.point).normalized;
+            //Vector2 localReflect = hit.transform.InverseTransformVector(reflect - hit.point).normalized;
             // Vector2 reflectpoint = new Vector2(-hitVector.x, 0) * 2;
 
-            Vector2 reflectingVector = reflect - hit.point;
+           // return hit.transform.InverseTransformVector(reflect - hit.point).normalized;
 
-            return hit.transform.InverseTransformVector(reflectingVector).normalized;         
+            //Vector2 reflectingVector = reflect - hit.point;
+
+            //return hit.transform.InverseTransformVector(reflectingVector).normalized;         
         }
 
         return Vector3.zero;
