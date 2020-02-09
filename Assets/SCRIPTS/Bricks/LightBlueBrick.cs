@@ -4,12 +4,9 @@ using UnityEngine;
 
 public class LightBlueBrick : BrickBase
 {
-    public LightBlueBrick(BlockSocket socket) : base (socket)
-    {
+    public LightBlueBrick(BlockSocket socket) : base (socket) {}
 
-    }
-
-    // Start is called before the first frame update
+    
     public override void Start()
     {
         base.Start();
@@ -19,7 +16,7 @@ public class LightBlueBrick : BrickBase
         SetBrick();
     }
 
-    // Update is called once per frame
+    
     void Update()
     {
         

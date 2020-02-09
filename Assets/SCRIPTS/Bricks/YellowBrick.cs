@@ -12,9 +12,7 @@ public class YellowBrick : BrickBase
 
         CanBeDestroyed = Type == BrickType.Brown ? true : false;        
     }  
-
     
-
     public override void Start()
     {
         base.Start();
@@ -22,9 +20,7 @@ public class YellowBrick : BrickBase
         Type = BrickType.Yellow;
 
         SetBrick();      
-    }
-
-    
+    }    
     void Update()
     {
         

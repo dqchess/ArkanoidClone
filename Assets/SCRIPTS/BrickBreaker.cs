@@ -23,6 +23,7 @@ public class BrickBreaker : MonoBehaviour
     Vector3 _currentDirection = Vector3.zero;
     [SerializeField]
     Vector2 _lastCatchedDir = Vector2.zero;
+    public int Damage { get => _damage; set => _damage = value; }
     void Start()
     {
         _transform = transform;
@@ -89,7 +90,7 @@ public class BrickBreaker : MonoBehaviour
                     target.GetDamage(_damage);
 
                 _verticalDir = -1;
-                //Direction.y = -Direction.y;
+                
                
                 break;
             case ("Racket"):          

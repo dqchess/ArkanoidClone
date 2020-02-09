@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class Racket : MonoBehaviour
 {
-    // Start is called before the first frame update
-
     private Transform _transform;
     [SerializeField]
     private Collider _collider;
@@ -17,18 +15,25 @@ public class Racket : MonoBehaviour
     private float _playerMov_X = 0.0f;
     private float _movementClamp = 3.45f;
     private float _input_X = 0.0f;
+    private bool _hasBuff = false;
+    private float _buffTime = 0.0f;
 
-
+    private BrickBreaker _brickBreaker = null;
+    public delegate void OnBuffOver();
+    public event OnBuffOver resetBrickBreaker; 
 
     private bool _isMoving = false;
 
     public float InputMultiplier { get => _inputMultiplier; set => _inputMultiplier = value; }
     public float MovementDamping { get => _movDamping; set => _movDamping = value; }
-
+    public BrickBreaker BrickBreaker { get => _brickBreaker; set => _brickBreaker = value; }
+    public bool HasBuff { get => _hasBuff; set => _hasBuff = value; }
+    public float BuffTime { set => _buffTime = value; }
     void Start()
     {
         _transform = transform;
         _collider = _transform.GetComponent<Collider>();
+        _brickBreaker = GameManager.Instance.BreakerPrefab;
 
     }
 
@@ -40,11 +45,8 @@ public class Racket : MonoBehaviour
         _isMoving = Mathf.Abs(_input_X) > 0 ? true : false;
 
         MovePlayer();
-    }
 
-    private void FixedUpdate()
-    {
-       
+        ManageBuffState();
     }
 
     private float ManageMovement()
@@ -78,6 +80,28 @@ public class Racket : MonoBehaviour
             _transform.position = new Vector3(_movementClamp * hMoveSign, _transform.position.y, _transform.position.z);
         }
 
+    }
+
+    private void ManageBuffState()
+    {
+        if (_buffTime > 0.0f)
+        {
+            _buffTime -= Time.time;
+
+            _hasBuff = true;
+        }
+
+        else _hasBuff = false;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.transform.tag == "Item")
+        {
+            Item item = collision.GetComponent<Item>() as Item;
+
+            item.ApplyBuff(this);
+        }
     }
 
 }
