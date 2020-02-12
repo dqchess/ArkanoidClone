@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour
     }
 
     public BrickBreaker BreakerPrefab;
+    public List<Item> ItemPrefabs;
 
     private void Awake()
     {

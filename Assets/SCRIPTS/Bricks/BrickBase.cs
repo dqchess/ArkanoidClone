@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public abstract class BrickBase : MonoBehaviour, IGolpeable
@@ -44,7 +45,8 @@ public abstract class BrickBase : MonoBehaviour, IGolpeable
         _hitCount += damage;
 
         if (_hitCount >= _hits)
-            Destroy(_transform.gameObject);
+            DestroyBrick();
+            
     }
 
     public void SetBrick()
@@ -126,6 +128,9 @@ public abstract class BrickBase : MonoBehaviour, IGolpeable
     public void DestroyBrick()
     {
         Destroy(_transform.gameObject);
+        // Instantiate FireSprite/ lo que sea si hace falta
+        // calcular probabilidad de objeto y devolver Type para buscar :: item.Type == selectedItem
+        //Instantiate(GameManager.Instance.ItemPrefabs.SingleOrDefault(item => item.Type == "GreenGem"));
     }
 
 

@@ -35,6 +35,8 @@ public class BlockSocket : MonoBehaviour
     void Update()
     {
         CheckState();
+
+       
     }
 
     public void SwitchBrick(int brickType)

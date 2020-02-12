@@ -33,7 +33,7 @@ public class Racket : MonoBehaviour
     {
         _transform = transform;
         _collider = _transform.GetComponent<Collider>();
-        _brickBreaker = GameManager.Instance.BreakerPrefab;
+        _brickBreaker = GameObject.FindGameObjectWithTag("ball").GetComponent<BrickBreaker>();
 
     }
 
@@ -43,6 +43,8 @@ public class Racket : MonoBehaviour
         _playerMov_X = Mathf.Clamp(ManageMovement(), -_movementClamp, _movementClamp);
        
         _isMoving = Mathf.Abs(_input_X) > 0 ? true : false;
+
+        _brickBreaker.RacketIsMoving = _isMoving;
 
         MovePlayer();
 
@@ -83,6 +85,14 @@ public class Racket : MonoBehaviour
     }
 
     private void ManageBuffState()
+    {
+        if (!_hasBuff)
+            _brickBreaker.Damage = 1;
+
+        RunBuffTimer();
+    }
+
+    private void RunBuffTimer()
     {
         if (_buffTime > 0.0f)
         {
